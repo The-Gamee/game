@@ -26,9 +26,9 @@ class Program
         const string inputFile = "input.txt";
         const string outputFile = "output.txt";
 
-        string[] allLines = File.ReadAllLines(inputFile);
-        int ptr = 0;
-        int tests = int.Parse(allLines[ptr++].Trim());
+        var allLines = File.ReadAllLines(inputFile);
+        var ptr = 0;
+        var tests = int.Parse(allLines[ptr++].Trim());
 
         var sbOut = new StringBuilder();
 
