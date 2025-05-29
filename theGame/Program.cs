@@ -17,6 +17,9 @@ using System.Text;
 
 class Program
 {
+    private const int BoardSize = 19;   // розмір дошки
+    private const int WinLength = 5;    // довжина переможної послідовності
+
     /* напрямки перевірки (→, ↓, ↘, ↗) */
     private static readonly int[,] Dir = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { -1, 1 } };
 
@@ -35,23 +38,23 @@ class Program
         for (int tc = 0; tc < tests; tc++)
         {
             /* читаємо одну дошку */
-            int[,] board = new int[19, 19];
-            for (int r = 0; r < 19; r++)
+            int[,] board = new int[BoardSize, BoardSize];
+            for (int r = 0; r < BoardSize; r++)
             {
                 int[] row = allLines[ptr++]
                     .Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(int.Parse)
                     .ToArray();
-                for (int c = 0; c < 19; c++) board[r, c] = row[c];
+                for (int c = 0; c < BoardSize; c++) board[r, c] = row[c];
             }
 
             /* ---------- Основна логіка перевірки ---------- */
             int winner = 0, ansR = -1, ansC = -1;
             bool found = false;
 
-            for (int r = 0; r < 19 && !found; r++)
+            for (int r = 0; r < BoardSize && !found; r++)
             {
-                for (int c = 0;     c < 19 && !found; c++)
+                for (int c = 0;     c < BoardSize && !found; c++)
                 {
                     int color = board[r, c];
                     if (color == 0) continue;
@@ -65,7 +68,7 @@ class Program
 
                         /* перевіряємо рівно 5 каменів */
                         bool ok = true;
-                        for (int k = 1; k < 5; k++)
+                        for (int k = 1; k < WinLength; k++)
                         {
                             int nr = r + dr * k, nc = c + dc * k;
                             if (!Inside(nr, nc) || board[nr, nc] != color) { ok = false; break; }
@@ -73,8 +76,8 @@ class Program
                         if (!ok) continue;
 
                         /* відкидаємо «довгі» рядки (>5) */
-                        if (Inside(r + dr * 5, c + dc * 5) &&
-                            board[r + dr * 5, c + dc * 5] == color) continue;
+                        if (Inside(r + dr * WinLength, c + dc * WinLength) &&
+                            board[r + dr * WinLength, c + dc * WinLength] == color) continue;
 
                         winner = color;
                         ansR = r; ansC = c;
@@ -92,5 +95,5 @@ class Program
         File.WriteAllText(outputFile, sbOut.ToString().TrimEnd());
     }
 
-    private static bool Inside(int r, int c) => r >= 0 && r < 19 && c >= 0 && c < 19;
+    private static bool Inside(int r, int c) => r >= 0 && r < BoardSize && c >= 0 && c < BoardSize;
 }
