@@ -46,7 +46,8 @@ class Program
             }
 
             /* ---------- Основна логіка перевірки ---------- */
-            int winner = 0, ansR = -1, ansC = -1;
+            TryFindWinner(board, out var winner, out var ansR, out var ansC);
+
             bool found = false;
 
             for (int r = 0; r < 19 && !found; r++)
@@ -90,6 +91,48 @@ class Program
 
         /* ---------- Запис результату у output.txt ---------- */
         File.WriteAllText(outputFile, sbOut.ToString().TrimEnd());
+    }
+
+    private static bool TryFindWinner(int[,] board, out int winner, out int ansR, out int ansC)
+    {
+        winner = 0;
+        ansR = ansC = -1;
+
+        for (int r = 0; r < 19; r++)
+        {
+            for (int c = 0; c < 19; c++)
+            {
+                int color = board[r, c];
+                if (color == 0) continue;
+
+                for (int d = 0; d < 4; d++)
+                {
+                    int dr = Dir[d, 0], dc = Dir[d, 1];
+
+                    // починати не всередині довшої послідовності
+                    if (Inside(r - dr, c - dc) && board[r - dr, c - dc] == color) continue;
+
+                    // рівно 5 каменів
+                    bool ok = true;
+                    for (int k = 1; k < 5; k++)
+                    {
+                        int nr = r + dr * k, nc = c + dc * k;
+                        if (!Inside(nr, nc) || board[nr, nc] != color) { ok = false; break; }
+                    }
+                    if (!ok) continue;
+
+                    // відкинути «довгі» рядки
+                    if (Inside(r + dr * 5, c + dc * 5) &&
+                        board[r + dr * 5, c + dc * 5] == color) continue;
+
+                    winner = color;
+                    ansR = r;
+                    ansC = c;
+                    return true;           // знайшли – одразу завершуємо
+                }
+            }
+        }
+        return false;                      // переможця немає
     }
 
     private static bool Inside(int r, int c) => r >= 0 && r < 19 && c >= 0 && c < 19;
