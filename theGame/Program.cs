@@ -28,7 +28,9 @@ class Program
 
         string[] allLines = File.ReadAllLines(inputFile);
         int ptr = 0;
-        int tests = int.Parse(allLines[ptr++].Trim());
+        
+        if (ptr >= allLines.Length || !int.TryParse(allLines[ptr++].Trim(), out int tests))
+            throw new InvalidDataException("Перший рядок має містити кількість тестів.");
 
         var sbOut = new StringBuilder();
 
@@ -38,11 +40,18 @@ class Program
             int[,] board = new int[19, 19];
             for (int r = 0; r < 19; r++)
             {
-                int[] row = allLines[ptr++]
-                    .Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(int.Parse)
-                    .ToArray();
-                for (int c = 0; c < 19; c++) board[r, c] = row[c];
+                if (ptr >= allLines.Length)
+                    throw new InvalidDataException($"Файл обірвався всередині дошки #{tc + 1}, рядок {r + 1}.");
+
+                string[] tokens = allLines[ptr++]
+                    .Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+
+                if (tokens.Length != 19)
+                    throw new InvalidDataException(
+                        $"Дошка #{tc + 1}, рядок {r + 1}: очікується 19 значень, отримано {tokens.Length}.");
+
+                for (int c = 0; c < 19; c++)
+                    board[r, c] = int.Parse(tokens[c]);
             }
 
             /* ---------- Основна логіка перевірки ---------- */
